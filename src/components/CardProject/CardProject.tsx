@@ -13,7 +13,7 @@ function CardProject({ project, onClick }: ICardProjectProps) {
   const { name, description, todoTasks, users } = project;
 
   return (
-    <Card onClick={() => onClick} sx={{ maxWidth: 345 }}>
+    <Card onClick={() => onClick} sx={{ maxWidth: 345, cursor: 'pointer' }}>
       <CardContent>
         <Typography variant="h3" gutterBottom>
           {name}
@@ -30,7 +30,7 @@ function CardProject({ project, onClick }: ICardProjectProps) {
         </div>
 
         <Typography variant="overline" display="block" gutterBottom>
-          {`${todoTasks.length} Total Tasks`}
+          {`${todoTasks?.length ?? 0} Total Tasks`}
         </Typography>
       </CardContent>
     </Card>

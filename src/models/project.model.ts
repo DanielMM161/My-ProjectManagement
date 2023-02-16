@@ -10,7 +10,7 @@ export interface Project {
   id: number;
   name: string;
   description: string;
-  todoTasks: Task[];
+  todoTasks?: Task[];
   users: User[];
   created: Date;
 }

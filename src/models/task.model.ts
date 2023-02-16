@@ -25,7 +25,7 @@ export interface Task {
   dueDate?: Date;
   status: Status;
   priority: Priority;
-  user: User;
+  user?: User;
   created: Date;
 }
 

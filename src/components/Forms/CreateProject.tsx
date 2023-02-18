@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {
@@ -14,16 +15,16 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { ICreateProjectRequest } from '../../services/request/project.request';
 import TransferList from '../TransferList/TransferList';
 import { User } from '../../models/user.model';
+import { IProjectRequest } from '../../services/request/project.request';
 
 import './style.css';
 
 interface ICreateProjectProps {
-  title: string;
+  dialogTitle: string;
   users: User[];
-  acceptOnClick: (values: Omit<ICreateProjectRequest, 'users'>) => void;
+  acceptOnClick: (values: IProjectRequest) => void;
   cancelClick: () => void;
 }
 
@@ -32,25 +33,27 @@ interface FormValues {
   description: string;
 }
 
-function CreateProject({ title, users, acceptOnClick, cancelClick }: ICreateProjectProps) {
+function CreateProject({ dialogTitle, users, acceptOnClick, cancelClick }: ICreateProjectProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
+  const [usersIn, setUsersIn] = useState<User[]>([]);
+
   const onSubmit: SubmitHandler<FormValues> = (data) =>
-    acceptOnClick({ name: data.title, description: data.description });
+    acceptOnClick({ name: data.title, description: data.description, users: usersIn });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>{dialogTitle}</DialogTitle>
 
       <DialogContent className="create-project-content" sx={{ width: '100%' }}>
         <Typography variant="h5" gutterBottom>
           Title
         </Typography>
         <TextField {...register('title', { required: true })} id="outlined-basic" className="title-field" />
-        {errors.description && <p className="error">*Description is required.</p>}
+        {errors.title && <p className="error">*Title is required.</p>}
 
         <Typography variant="h5" gutterBottom>
           Description
@@ -73,7 +76,7 @@ function CreateProject({ title, users, acceptOnClick, cancelClick }: ICreateProj
           </AccordionSummary>
 
           <AccordionDetails>
-            <TransferList users={users} />
+            <TransferList users={users} onUsersIn={(value) => setUsersIn(value)} />
           </AccordionDetails>
         </Accordion>
       </DialogContent>

@@ -10,7 +10,7 @@ interface ICardProjectProps {
 }
 
 function CardProject({ project, onClick }: ICardProjectProps) {
-  const { name, description, todoTasks, users } = project;
+  const { name, description, users } = project;
 
   return (
     <Card onClick={() => onClick} sx={{ maxWidth: 345, cursor: 'pointer' }}>
@@ -30,7 +30,7 @@ function CardProject({ project, onClick }: ICardProjectProps) {
         </div>
 
         <Typography variant="overline" display="block" gutterBottom>
-          {`${todoTasks?.length ?? 0} Total Tasks`}
+          {/* {`${todoTasks?.length ?? 0} Total Tasks`} */}
         </Typography>
       </CardContent>
     </Card>

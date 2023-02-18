@@ -14,7 +14,6 @@ const login = createAsyncThunk('login', async (payload: IUserRequest) => {
   });
 
   if (response.status === 200) {
-    console.log('login', response);
     return response.data;
   }
 

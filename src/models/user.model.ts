@@ -1,7 +1,3 @@
-/* eslint-disable import/no-cycle */
-import { Project } from './project.model';
-import { Task } from './task.model';
-
 export interface SliceStateUser {
   user: User;
 }
@@ -11,8 +7,6 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  projects?: Project[];
-  tasks?: Task[];
   created?: Date;
 }
 
@@ -21,10 +15,13 @@ export const emptyUser: User = {
   name: '',
   email: '',
   avatar: '',
-  projects: [],
-  tasks: [],
 };
 
 export const initialUserState: SliceStateUser = {
-  user: emptyUser,
+  user: {
+    id: 1,
+    name: 'Daniel',
+    email: 'danieltest@gmail.com',
+    avatar: 'https://api.lorem.space/image/face?w=150&h=150',
+  },
 };

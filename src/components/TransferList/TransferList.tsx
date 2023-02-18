@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Avatar, Button, Card, CardHeader, Checkbox, Divider, Grid, List, ListItem, ListItemText } from '@mui/material';
 
@@ -19,13 +19,14 @@ function union(a: readonly User[], b: readonly User[]) {
 
 interface ITransferListProp {
   users: User[];
+  onUsersIn: (usersIn: User[]) => void;
 }
 
-function TransferList({ users }: ITransferListProp) {
+function TransferList({ users, onUsersIn }: ITransferListProp) {
   const userState = useAppSelector((state) => state.user);
   const [checked, setChecked] = useState<readonly User[]>([]);
   const [usersLeft, setUsersLeft] = useState<readonly User[]>(users.filter((item) => item.id !== userState.user.id));
-  const [usersRight, setUsersRight] = useState<readonly User[]>([userState.user]);
+  const [usersRight, setUsersRight] = useState<User[]>([userState.user]);
 
   const leftChecked = intersection(checked, usersLeft);
   const rightChecked = intersection(checked, usersRight);
@@ -39,7 +40,6 @@ function TransferList({ users }: ITransferListProp) {
     } else {
       newChecked.splice(currentIndex, 1);
     }
-
     setChecked(newChecked);
   };
 
@@ -56,6 +56,7 @@ function TransferList({ users }: ITransferListProp) {
 
   const handleCheckedRight = () => {
     setUsersRight(usersRight.concat(leftChecked));
+    onUsersIn(usersRight.concat(leftChecked));
     setUsersLeft(not(usersLeft, leftChecked));
     setChecked(not(checked, leftChecked));
   };
@@ -64,6 +65,7 @@ function TransferList({ users }: ITransferListProp) {
     const newChecked = rightChecked.filter((item) => item.id !== userState.user.id);
     setUsersLeft(usersLeft.concat(newChecked));
     setUsersRight(not(usersRight, newChecked));
+    onUsersIn(not(usersRight, newChecked));
     setChecked(not(checked, newChecked));
   };
 

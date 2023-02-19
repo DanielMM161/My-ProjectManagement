@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 import {
   Typography,
@@ -17,55 +16,62 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import TransferList from '../TransferList/TransferList';
 import { User } from '../../models/user.model';
-import { IProjectRequest } from '../../services/request/project.request';
 
 import './style.css';
+import { Project } from '../../models/project.model';
 import useUsers from '../../hooks/useUsers.hook';
-import { useAppSelector } from '../../hooks/redux.hook';
 
-interface ICreateProjectProps {
+interface IUpdateProjectProps {
   dialogTitle: string;
-  acceptOnClick: (values: IProjectRequest) => void;
+  project: Project;
+  acceptOnClick: (values: Project) => void;
   cancelClick: () => void;
 }
 
-interface FormValues {
-  title: string;
-  description: string;
-}
-
-function CreateProject({ dialogTitle, acceptOnClick, cancelClick }: ICreateProjectProps) {
-  const userState = useAppSelector((state) => state.user);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>();
-  const [usersIn, setUsersIn] = useState<User[]>([userState.user]);
+function UpdateProject({ dialogTitle, project, acceptOnClick, cancelClick }: IUpdateProjectProps) {
+  const { name, description, users } = project;
+  const [nameProject, setNameProject] = useState<string>(name);
+  const [descriptionProject, setDescriptionProject] = useState<string>(description);
+  const [usersIn, setUsersIn] = useState<User[]>(users);
   const { allUsers } = useUsers();
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (usersIn.length > 0) {
-      acceptOnClick({ name: data.title, description: data.description, users: usersIn });
+      const projectUpdated: Project = {
+        ...project,
+        name: nameProject,
+        description: descriptionProject,
+        users: usersIn,
+      };
+      acceptOnClick(projectUpdated);
     }
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={(e) => handleSubmit(e)}>
       <DialogTitle>{dialogTitle}</DialogTitle>
 
       <DialogContent className="create-project-content" sx={{ width: '100%' }}>
         <Typography variant="h5" gutterBottom>
           Title
         </Typography>
-        <TextField {...register('title', { required: true })} id="outlined-basic" className="title-field" />
-        {errors.title && <p className="error">*Title is required.</p>}
+        <TextField
+          id="outlined-basic"
+          className="title-field"
+          value={nameProject}
+          onChange={(e) => setNameProject(e.target.value)}
+          onBlur={() => {
+            if (nameProject === '') {
+              setNameProject(name);
+            }
+          }}
+        />
 
         <Typography variant="h5" gutterBottom>
           Description
         </Typography>
         <TextField
-          {...register('description', { required: true })}
           id="outlined-multiline-static"
           multiline
           rows={4}
@@ -73,8 +79,14 @@ function CreateProject({ dialogTitle, acceptOnClick, cancelClick }: ICreateProje
             width: 600,
             maxWidth: '100%',
           }}
+          value={descriptionProject}
+          onChange={(e) => setDescriptionProject(e.target.value)}
+          onBlur={() => {
+            if (descriptionProject === '') {
+              setDescriptionProject(description);
+            }
+          }}
         />
-        {errors.description && <p className="error">*Description is required.</p>}
 
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -83,12 +95,12 @@ function CreateProject({ dialogTitle, acceptOnClick, cancelClick }: ICreateProje
 
           {allUsers.length > 0 ? (
             <AccordionDetails>
-              <TransferList allUsers={allUsers} usersIn={usersIn} onUsersIn={(value) => setUsersIn(value)} />
+              <TransferList allUsers={allUsers} usersIn={users} onUsersIn={(value) => setUsersIn(value)} />
             </AccordionDetails>
           ) : null}
         </Accordion>
-        {usersIn.length === 0 ? <p className="error">*You must to add at least one user.</p> : null}
       </DialogContent>
+      {usersIn.length === 0 ? <p className="error">*You must to add at least one user.</p> : null}
 
       <Divider />
 
@@ -106,4 +118,4 @@ function CreateProject({ dialogTitle, acceptOnClick, cancelClick }: ICreateProje
   );
 }
 
-export default CreateProject;
+export default UpdateProject;

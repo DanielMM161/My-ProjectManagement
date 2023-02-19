@@ -18,15 +18,15 @@ function union(a: readonly User[], b: readonly User[]) {
 }
 
 interface ITransferListProp {
-  users: User[];
+  allUsers: User[];
+  usersIn: User[];
   onUsersIn: (usersIn: User[]) => void;
 }
 
-function TransferList({ users, onUsersIn }: ITransferListProp) {
-  const userState = useAppSelector((state) => state.user);
+function TransferList({ allUsers, usersIn, onUsersIn }: ITransferListProp) {
   const [checked, setChecked] = useState<readonly User[]>([]);
-  const [usersLeft, setUsersLeft] = useState<readonly User[]>(users.filter((item) => item.id !== userState.user.id));
-  const [usersRight, setUsersRight] = useState<User[]>([userState.user]);
+  const [usersLeft, setUsersLeft] = useState<readonly User[]>(allUsers);
+  const [usersRight, setUsersRight] = useState<User[]>(usersIn);
 
   const leftChecked = intersection(checked, usersLeft);
   const rightChecked = intersection(checked, usersRight);
@@ -46,11 +46,10 @@ function TransferList({ users, onUsersIn }: ITransferListProp) {
   const numberOfChecked = (items: readonly User[]) => intersection(checked, items).length;
 
   const handleToggleAll = (items: readonly User[]) => () => {
-    const newChecked = checked.filter((item) => item.id !== userState.user.id);
     if (numberOfChecked(items) === items.length) {
-      setChecked(not(newChecked, items));
+      setChecked(not(checked, items));
     } else {
-      setChecked(union(newChecked, items));
+      setChecked(union(checked, items));
     }
   };
 
@@ -62,11 +61,10 @@ function TransferList({ users, onUsersIn }: ITransferListProp) {
   };
 
   const handleCheckedLeft = () => {
-    const newChecked = rightChecked.filter((item) => item.id !== userState.user.id);
-    setUsersLeft(usersLeft.concat(newChecked));
-    setUsersRight(not(usersRight, newChecked));
-    onUsersIn(not(usersRight, newChecked));
-    setChecked(not(checked, newChecked));
+    setUsersLeft(usersLeft.concat(rightChecked));
+    setUsersRight(not(usersRight, rightChecked));
+    onUsersIn(not(usersRight, rightChecked));
+    setChecked(not(checked, rightChecked));
   };
 
   const customList = (title: React.ReactNode, items: readonly User[]) => (
@@ -78,7 +76,6 @@ function TransferList({ users, onUsersIn }: ITransferListProp) {
             onClick={handleToggleAll(items)}
             checked={numberOfChecked(items) === items.length && items.length !== 0}
             indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
-            disabled={items.length === 0}
             inputProps={{
               'aria-label': 'all items selected',
             }}
@@ -103,14 +100,9 @@ function TransferList({ users, onUsersIn }: ITransferListProp) {
           const labelId = `transfer-list-all-item-${value}-label`;
 
           return (
-            <ListItem
-              key={value.id}
-              role="listitem"
-              onClick={handleToggle(value)}
-              disabled={value.id === userState.user.id}
-            >
+            <ListItem key={value.id} role="listitem" onClick={handleToggle(value)}>
               <Checkbox
-                checked={checked.indexOf(value) !== -1 && value.id !== userState.user.id}
+                checked={checked.indexOf(value) !== -1}
                 tabIndex={-1}
                 disableRipple
                 inputProps={{

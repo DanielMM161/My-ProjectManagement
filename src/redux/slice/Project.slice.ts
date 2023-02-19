@@ -27,11 +27,7 @@ export const projectSlice = createSlice({
       if (payload !== null) {
         const index = state.projects.findIndex((item) => item.id === payload.id);
         if (index !== -1) {
-          state.projects[index] = {
-            ...state.projects[index],
-            name: payload.name,
-            description: payload.description,
-          };
+          state.projects[index] = payload;
         }
       }
     });

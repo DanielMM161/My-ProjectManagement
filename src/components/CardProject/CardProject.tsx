@@ -13,7 +13,7 @@ function CardProject({ project, onClick }: ICardProjectProps) {
   const { name, description, users } = project;
 
   return (
-    <Card onClick={() => onClick} sx={{ maxWidth: 345, cursor: 'pointer' }}>
+    <Card onClick={() => onClick()} sx={{ maxWidth: 345, cursor: 'pointer' }}>
       <CardContent>
         <Typography variant="h3" gutterBottom>
           {name}

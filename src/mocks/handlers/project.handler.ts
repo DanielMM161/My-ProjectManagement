@@ -32,7 +32,6 @@ const projectHandler = [
   /** Get All Projects */
   rest.get('/projects', async (req, res, ctx) => {
     const allProjectsId = [...new Set(userProjects.map((item) => item.projectId))];
-    console.log('getAllProjectsWithUser(allProjectsId) --> ', getAllProjectsWithUser(allProjectsId));
     return res(ctx.json(getAllProjectsWithUser(allProjectsId)));
   }),
   /** Get Projects By User */
@@ -52,7 +51,6 @@ const projectHandler = [
   /** Create Project */
   rest.post('/createProject', async (req, res, ctx) => {
     const request: IProjectRequest = await req.json();
-    console.log('request', request);
 
     const newProject: Project = {
       id: projects.length + 1,
@@ -103,7 +101,7 @@ const projectHandler = [
         ...findProject[0],
         name: request.name !== '' ? request.name : findProject[0].name,
         description: request.description !== '' ? request.description : findProject[0].description,
-        users: [],
+        users: request.users,
       };
 
       return res(ctx.json(project));

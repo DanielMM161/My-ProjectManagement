@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button, Dialog } from '@mui/material';
 
@@ -6,12 +6,12 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux.hook';
 import CardProject from '../../components/CardProject/CardProject';
 import CreateProject from '../../components/Forms/CreateProject';
 import { IProjectRequest } from '../../services/request/project.request';
-import { User } from '../../models/user.model';
-import { fetchAllUsers } from '../../services/user.service';
 import Transition from '../../transitions/transition';
 import { createProject, deleteProject, getProjectsByUser, updateProject } from '../../services/project.service';
 import { removeProject } from '../../redux/slice/project.slice';
 
+import UpdateProject from '../../components/Forms/UpdateProject';
+import { Project } from '../../models/project.model';
 import './style.css';
 
 enum FORMS {
@@ -32,38 +32,35 @@ function Dashboard() {
   const projectsState = useAppSelector((state) => state.projcts);
   const { projects } = projectsState;
   const [showModal, setShowModal] = useState(false);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [typeForm, setAllTypeForm] = useState<IStateForms>({
     title: '',
     form: FORMS.none,
   });
-  const [indexProject, setIndexProject] = useState<number>(0);
+  const [projectSelected, setProjectSelected] = useState<Project>(projects[0]);
+
+  const fetchUserProjects = useCallback(() => {
+    dispatch(getProjectsByUser(user.id));
+  }, [dispatch, user.id]);
 
   // TODO: Delete this part
-  // useEffect(() => {
-  //   const fetchUserProjects = () => {
-  //     dispatch(getProjectsByUser(user.id));
-  //   };
-  //   fetchUserProjects();
-  // }, []);
+  useEffect(() => {
+    fetchUserProjects();
+  }, [fetchUserProjects]);
 
   function showCreateProject() {
     setAllTypeForm({
       title: 'New Project',
       form: FORMS.create,
     });
-    dispatch(fetchAllUsers()).then((result) => {
-      setAllUsers([...result.payload]);
-      setShowModal(!showModal);
-    });
+    setShowModal(!showModal);
   }
 
-  function showUpdateProject() {
+  function showUpdateProject(project: Project) {
     setAllTypeForm({
       title: 'Update Project',
       form: FORMS.update,
     });
-    setIndexProject(1);
+    setProjectSelected(project);
     setShowModal(!showModal);
   }
 
@@ -81,9 +78,9 @@ function Dashboard() {
     });
   }
 
-  function handleUpdateProject(request: IProjectRequest) {
-    console.log(request);
-    dispatch(updateProject(request));
+  function handleUpdateProject(project: Project) {
+    dispatch(updateProject(project));
+    setShowModal(!showModal);
   }
 
   return (
@@ -104,12 +101,14 @@ function Dashboard() {
       >
         Delete
       </Button>
-      <Button variant="outlined" onClick={() => showUpdateProject()}>
+      <Button variant="outlined" onClick={() => {}}>
         Update
       </Button>
 
       {projects.length > 0 &&
-        projects.map((project) => <CardProject key={project.name} project={project} onClick={() => {}} />)}
+        projects.map((project) => (
+          <CardProject key={project.name} project={project} onClick={() => showUpdateProject(project)} />
+        ))}
 
       {/* MODAL CREATE */}
       <Dialog
@@ -126,12 +125,16 @@ function Dashboard() {
             dialogTitle={typeForm.title}
             acceptOnClick={(value) => handleCreateProject(value)}
             cancelClick={() => setShowModal(!showModal)}
-            users={allUsers}
           />
         ) : null}
 
         {showModal && typeForm.form === FORMS.update ? (
-          <div>Update</div>
+          <UpdateProject
+            dialogTitle={typeForm.title}
+            project={projectSelected}
+            acceptOnClick={(project) => handleUpdateProject(project)}
+            cancelClick={() => setShowModal(!showModal)}
+          />
         ) : // UPDATE PROJECT COMPONENT
         null}
       </Dialog>

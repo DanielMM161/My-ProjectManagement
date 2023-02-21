@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {
@@ -18,10 +18,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TransferList from '../TransferList/TransferList';
 import { User } from '../../models/user.model';
 import { IProjectRequest } from '../../services/request/project.request';
-
-import './style.css';
 import useUsers from '../../hooks/useUsers.hook';
 import { useAppSelector } from '../../hooks/redux.hook';
+import './style.css';
 
 interface ICreateProjectProps {
   dialogTitle: string;

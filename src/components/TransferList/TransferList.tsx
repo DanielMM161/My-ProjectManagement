@@ -1,9 +1,21 @@
 import { useState, useEffect } from 'react';
 
-import { Avatar, Button, Card, CardHeader, Checkbox, Divider, Grid, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Avatar,
+  Button,
+  Card,
+  CardHeader,
+  Checkbox,
+  Divider,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+} from '@mui/material';
 
 import { User } from '../../models/user.model';
-import { useAppSelector } from '../../hooks/redux.hook';
+import ControlledInput from '../ControlledInput/ControlledInput';
 
 function not(a: readonly User[], b: readonly User[]) {
   return a.filter((value) => b.indexOf(value) === -1);
@@ -26,6 +38,7 @@ interface ITransferListProp {
 function TransferList({ allUsers, usersIn, onUsersIn }: ITransferListProp) {
   const [checked, setChecked] = useState<readonly User[]>([]);
   const [usersLeft, setUsersLeft] = useState<readonly User[]>(allUsers);
+  const [copyUserLeft, setcopyUserLeftt] = useState<readonly User[]>(allUsers);
   const [usersRight, setUsersRight] = useState<User[]>(usersIn);
 
   const leftChecked = intersection(checked, usersLeft);
@@ -66,6 +79,25 @@ function TransferList({ allUsers, usersIn, onUsersIn }: ITransferListProp) {
     onUsersIn(not(usersRight, rightChecked));
     setChecked(not(checked, rightChecked));
   };
+
+  function searchUser(value: string) {
+    if (value !== '') {
+      const lefResult = copyUserLeft.filter(
+        (user) =>
+          user.name.toLowerCase().startsWith(value.toLowerCase()) &&
+          usersRight.findIndex((item) => item.id === user.id) === -1,
+      );
+
+      if (lefResult.length > 0) {
+        setUsersLeft(lefResult);
+      }
+    } else {
+      const filterCopyUserLeft = copyUserLeft.filter(
+        (user) => usersRight.findIndex((item) => item.id === user.id) === -1,
+      );
+      setUsersLeft(filterCopyUserLeft);
+    }
+  }
 
   const customList = (title: React.ReactNode, items: readonly User[]) => (
     <Card>
@@ -119,34 +151,38 @@ function TransferList({ allUsers, usersIn, onUsersIn }: ITransferListProp) {
   );
 
   return (
-    <Grid container spacing={2} justifyContent="center" alignItems="center">
-      <Grid item>{customList('Out', usersLeft)}</Grid>
-      <Grid item>
-        <Grid container direction="column" alignItems="center">
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedRight}
-            disabled={leftChecked.length === 0}
-            aria-label="move selected right"
-          >
-            &gt;
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedLeft}
-            disabled={rightChecked.length === 0}
-            aria-label="move selected left"
-          >
-            &lt;
-          </Button>
+    <>
+      <ControlledInput onUpdate={(value) => searchUser(value)} />
+
+      <Grid container spacing={2} justifyContent="center" alignItems="center">
+        <Grid item>{customList('Out', usersLeft)}</Grid>
+        <Grid item>
+          <Grid container direction="column" alignItems="center">
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedRight}
+              disabled={leftChecked.length === 0}
+              aria-label="move selected right"
+            >
+              &gt;
+            </Button>
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedLeft}
+              disabled={rightChecked.length === 0}
+              aria-label="move selected left"
+            >
+              &lt;
+            </Button>
+          </Grid>
         </Grid>
+        <Grid item>{customList('In', usersRight)}</Grid>
       </Grid>
-      <Grid item>{customList('In', usersRight)}</Grid>
-    </Grid>
+    </>
   );
 }
 

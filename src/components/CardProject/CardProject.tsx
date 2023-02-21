@@ -1,19 +1,43 @@
-import { Avatar, Card, Typography, CardContent } from '@mui/material';
+import { Avatar, Card, Typography, CardContent, Menu, MenuItem, IconButton } from '@mui/material';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
+import { useState } from 'react';
 import { Project } from '../../models/project.model';
 
 import './style.css';
 
 interface ICardProjectProps {
   project: Project;
+  editProject: () => void;
+  deleteProject: () => void;
   onClick: () => void;
 }
 
-function CardProject({ project, onClick }: ICardProjectProps) {
+function CardProject({ project, editProject, deleteProject, onClick }: ICardProjectProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { name, description, users } = project;
 
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  function handleClose() {
+    setAnchorEl(null);
+  }
+
+  function handleEdit() {
+    handleClose();
+    editProject();
+  }
+
+  function handleDelete() {
+    handleClose();
+    deleteProject();
+  }
+
   return (
-    <Card onClick={() => onClick()} sx={{ maxWidth: 345, cursor: 'pointer' }}>
+    <Card onClick={() => {}} sx={{ maxWidth: 345, cursor: 'pointer' }}>
       <CardContent>
         <Typography variant="h3" gutterBottom>
           {name}
@@ -29,9 +53,33 @@ function CardProject({ project, onClick }: ICardProjectProps) {
             .slice(0, 4)}
         </div>
 
-        <Typography variant="overline" display="block" gutterBottom>
-          {/* {`${todoTasks?.length ?? 0} Total Tasks`} */}
-        </Typography>
+        <footer className="footer-card">
+          <Typography variant="overline" display="block" gutterBottom>
+            {/* {`${todoTasks?.length ?? 0} Total Tasks`} */}
+          </Typography>
+
+          <IconButton
+            aria-label="options"
+            aria-controls={open ? 'basic-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            onClick={handleClick}
+          >
+            <MoreHorizIcon />
+          </IconButton>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              'aria-labelledby': 'basic-button',
+            }}
+          >
+            <MenuItem onClick={handleEdit}>Edit</MenuItem>
+            <MenuItem onClick={handleDelete}>Delete</MenuItem>
+          </Menu>
+        </footer>
       </CardContent>
     </Card>
   );

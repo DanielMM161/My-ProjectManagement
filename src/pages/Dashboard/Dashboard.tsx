@@ -13,11 +13,13 @@ import { removeProject } from '../../redux/slice/project.slice';
 import UpdateProject from '../../components/Forms/UpdateProject';
 import { Project } from '../../models/project.model';
 import './style.css';
+import DialogInfoAction from '../../components/DialogContent/DialogInfoAction';
 
 enum FORMS {
   none,
   create,
   update,
+  delete,
 }
 
 interface IStateForms {
@@ -31,7 +33,7 @@ function Dashboard() {
   const { user } = userState;
   const projectsState = useAppSelector((state) => state.projcts);
   const { projects } = projectsState;
-  const [showModal, setShowModal] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   const [typeForm, setAllTypeForm] = useState<IStateForms>({
     title: '',
     form: FORMS.none,
@@ -52,35 +54,45 @@ function Dashboard() {
       title: 'New Project',
       form: FORMS.create,
     });
-    setShowModal(!showModal);
+    setShowDialog(!showDialog);
   }
 
-  function showUpdateProject(project: Project) {
+  function showEditProject(project: Project) {
     setAllTypeForm({
       title: 'Update Project',
       form: FORMS.update,
     });
     setProjectSelected(project);
-    setShowModal(!showModal);
+    setShowDialog(!showDialog);
+  }
+
+  function showDeleteProject(project: Project) {
+    setAllTypeForm({
+      title: 'Delete Project',
+      form: FORMS.delete,
+    });
+    setProjectSelected(project);
+    setShowDialog(!showDialog);
   }
 
   function handleCreateProject(request: IProjectRequest) {
-    setShowModal(!showModal);
+    setShowDialog(!showDialog);
     const newProject: IProjectRequest = request;
     dispatch(createProject(newProject));
   }
 
   function handleDeleteProject() {
-    dispatch(deleteProject(1)).then((result) => {
+    setShowDialog(!showDialog);
+    dispatch(deleteProject(projectSelected.id)).then((result) => {
       if (result) {
-        dispatch(removeProject(1));
+        dispatch(removeProject(projectSelected.id));
       }
     });
   }
 
   function handleUpdateProject(project: Project) {
     dispatch(updateProject(project));
-    setShowModal(!showModal);
+    setShowDialog(!showDialog);
   }
 
   return (
@@ -93,50 +105,53 @@ function Dashboard() {
       >
         Create Project
       </Button>
-      <Button
-        variant="outlined"
-        onClick={() => {
-          handleDeleteProject();
-        }}
-      >
-        Delete
-      </Button>
-      <Button variant="outlined" onClick={() => {}}>
-        Update
-      </Button>
 
       {projects.length > 0 &&
         projects.map((project) => (
-          <CardProject key={project.name} project={project} onClick={() => showUpdateProject(project)} />
+          <CardProject
+            key={project.name}
+            project={project}
+            onClick={() => {}}
+            editProject={() => showEditProject(project)}
+            deleteProject={() => showDeleteProject(project)}
+          />
         ))}
 
-      {/* MODAL CREATE */}
+      {/* DIALOG CREATE */}
       <Dialog
-        open={showModal}
+        open={showDialog}
         TransitionComponent={Transition}
         keepMounted
         onClose={() => {
-          setShowModal(!showModal);
+          setShowDialog(!showDialog);
         }}
         aria-describedby="alert-dialog-slide-description"
       >
-        {showModal && typeForm.form === FORMS.create ? (
+        {showDialog && typeForm.form === FORMS.create ? (
           <CreateProject
             dialogTitle={typeForm.title}
             acceptOnClick={(value) => handleCreateProject(value)}
-            cancelClick={() => setShowModal(!showModal)}
+            cancelClick={() => setShowDialog(!showDialog)}
           />
         ) : null}
 
-        {showModal && typeForm.form === FORMS.update ? (
+        {showDialog && typeForm.form === FORMS.update ? (
           <UpdateProject
             dialogTitle={typeForm.title}
             project={projectSelected}
             acceptOnClick={(project) => handleUpdateProject(project)}
-            cancelClick={() => setShowModal(!showModal)}
+            cancelClick={() => setShowDialog(!showDialog)}
           />
-        ) : // UPDATE PROJECT COMPONENT
-        null}
+        ) : null}
+
+        {showDialog && typeForm.form === FORMS.delete ? (
+          <DialogInfoAction
+            dialogTitle={typeForm.title}
+            contentText="Are you sure that you want to delete this project ?"
+            onClickAccept={() => handleDeleteProject()}
+            onClickCancel={() => setShowDialog(!showDialog)}
+          />
+        ) : null}
       </Dialog>
     </div>
   );

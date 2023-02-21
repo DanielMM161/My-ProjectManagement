@@ -4,3 +4,9 @@
   gap: 5px;
   margin-bottom: 8px;
 }
+
+.footer-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

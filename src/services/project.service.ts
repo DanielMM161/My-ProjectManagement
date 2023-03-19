@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import BASE_URL from '../utils/constants';
 import { IProjectRequest } from './request/project.request';
 
 const getProjectsByUser = createAsyncThunk('fetchProjectsByUser', async (userId: number) => {
@@ -13,7 +14,7 @@ const getProjectsByUser = createAsyncThunk('fetchProjectsByUser', async (userId:
 });
 
 const fetchProjects = createAsyncThunk('fetchAllProjects', async () => {
-  const response = await axios.get(`/projects`);
+  const response = await axios.get(`${BASE_URL}/projects`);
 
   if (response.status === 200) {
     return response.data;
@@ -23,7 +24,7 @@ const fetchProjects = createAsyncThunk('fetchAllProjects', async () => {
 });
 
 const createProject = createAsyncThunk('createProject', async (request: IProjectRequest) => {
-  const response = await axios.post('/createProject', {
+  const response = await axios.post(`${BASE_URL}/createProject`, {
     name: request.name,
     description: request.description,
     users: request.users,

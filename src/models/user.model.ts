@@ -4,7 +4,8 @@ export interface SliceStateUser {
 
 export interface User {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   avatar: string;
   created?: Date;
@@ -12,16 +13,18 @@ export interface User {
 
 export const emptyUser: User = {
   id: 0,
-  name: '',
+  firstName: '',
+  lastName: '',
   email: '',
   avatar: '',
 };
 
 export const initialUserState: SliceStateUser = {
   user: {
-    id: 1,
-    name: 'Daniel',
-    email: 'danieltest@gmail.com',
-    avatar: 'https://api.lorem.space/image/face?w=150&h=150',
+    id: -1,
+    firstName: '',
+    lastName: '',
+    avatar: '',
+    email: ''
   },
 };

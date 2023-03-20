@@ -46,6 +46,7 @@ function Dashboard() {
 
   // TODO: Delete this part
   useEffect(() => {
+    console.log("user state --> ", user)
     fetchUserProjects();
   }, [fetchUserProjects]);
 

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { initialUserState, SliceStateUser } from '../../models/user.model';
 
-import { login } from '../../services/user.service';
+import { login, getProfile, register } from '../../services/user.service';
 
 export const userSlice = createSlice({
   name: 'user',
@@ -9,8 +9,11 @@ export const userSlice = createSlice({
   reducers: {},
   extraReducers: (build) => {
     /** fulfilled */
-    build.addCase(login.fulfilled, (state: SliceStateUser, action) => {
-      state.user = action.payload;
+    build.addCase(getProfile.fulfilled, (state: SliceStateUser, action) => {
+      state.user = action.payload;           
+    });
+    build.addCase(register.fulfilled, (state: SliceStateUser, action) => {
+      state.user = action.payload;           
     });
   },
 });
